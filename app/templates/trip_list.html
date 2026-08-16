@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Trips — SARS Logbook{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Trips</h1>
+  <div class="filter-bar">
+    <a href="/trips" class="{{ 'active' if not category }}">All</a>
+    <a href="/trips?category=business" class="{{ 'active' if category == 'business' }}">Business</a>
+    <a href="/trips?category=private" class="{{ 'active' if category == 'private' }}">Private</a>
+  </div>
+  <table class="trip-table">
+    <thead><tr><th>Date</th><th>From → To</th><th>Km</th><th>Category</th><th>Purpose</th><th></th></tr></thead>
+    <tbody>
+    {% for trip in trips %}
+      <tr>
+        <td>{{ trip.started_at.strftime("%d/%m/%Y") }}</td>
+        <td>{{ trip.start_address or "—" }} → {{ trip.end_address or "—" }}</td>
+        <td>{{ "%.1f"|format(trip.distance_km) if trip.distance_km is not none else "—" }}</td>
+        <td>{{ (trip.category or "unclassified")|title }}</td>
+        <td>{{ trip.purpose or "—" }}</td>
+        <td><a href="/trips/{{ trip.id }}">Edit</a></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="muted">No trips found.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

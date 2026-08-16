@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in — SARS Logbook</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1a1a1a">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body class="login-body">
+  <div class="card narrow">
+    <h1>SARS Logbook</h1>
+    {% if error %}<p class="error">Incorrect password.</p>{% endif %}
+    <form method="post" action="/login">
+      <label>Password
+        <input type="password" name="password" required autofocus>
+      </label>
+      <button type="submit" class="btn btn-primary btn-large">Log in</button>
+    </form>
+  </div>
+</body>
+</html>

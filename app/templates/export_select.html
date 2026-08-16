@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Export — SARS Logbook{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <h1>Export logbook</h1>
+  <form id="export-form">
+    <label>From<input type="date" name="start" id="export-start" value="{{ tax_start.isoformat() }}"></label>
+    <label>To<input type="date" name="end" id="export-end" value="{{ tax_end.isoformat() }}"></label>
+    <p class="muted">Defaults to the current SA tax year ({{ tax_start.strftime("%d %b %Y") }} – {{ tax_end.strftime("%d %b %Y") }}).</p>
+    <button type="button" class="btn btn-primary" id="view-report-btn">View report (print to PDF)</button>
+    <button type="button" class="btn" id="download-xlsx-btn">Download Excel</button>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  function currentQuery() {
+    const start = document.getElementById("export-start").value;
+    const end = document.getElementById("export-end").value;
+    return `start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
+  }
+  document.getElementById("view-report-btn").addEventListener("click", () => {
+    window.location.href = `/export/html?${currentQuery()}`;
+  });
+  document.getElementById("download-xlsx-btn").addEventListener("click", () => {
+    window.location.href = `/export/xlsx?${currentQuery()}`;
+  });
+</script>
+{% endblock %}

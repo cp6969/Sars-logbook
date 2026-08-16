@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}SARS Logbook{% endblock %}</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a1a1a">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+  <header class="app-header">
+    <a href="/dashboard" class="app-title">SARS Logbook</a>
+    <nav>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/trips">Trips</a>
+      <a href="/export">Export</a>
+      <a href="/settings">Settings</a>
+      <form action="/logout" method="post" style="display:inline">
+        <button type="submit" class="link-btn">Log out</button>
+      </form>
+    </nav>
+  </header>
+  <main class="app-main">
+    {% block content %}{% endblock %}
+  </main>
+  <script src="/static/js/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

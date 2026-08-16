@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Trip — SARS Logbook{% endblock %}
+{% block content %}
+<div class="card narrow" id="trip-capture-app" data-vehicle-id="{{ vehicle.id }}" data-resume-trip-id="{{ resume_trip_id or '' }}">
+  <div id="trip-idle-state">
+    <button id="start-trip-btn" class="btn btn-primary btn-large">Start Trip</button>
+    <p class="muted">Your phone's location is used only while a trip is active.</p>
+  </div>
+
+  <div id="trip-active-state" hidden>
+    <p class="odometer-figure" id="live-distance">0.0 km</p>
+    <p class="muted" id="live-elapsed">00:00</p>
+    <button id="end-trip-btn" class="btn btn-danger btn-large">End Trip</button>
+  </div>
+
+  <div id="trip-classify-state" hidden>
+    <h2>Trip complete</h2>
+    <p><span id="classify-distance"></span> km — <span id="classify-from"></span> → <span id="classify-to"></span></p>
+    <form id="classify-form">
+      <label><input type="radio" name="category" value="business" id="cat-business"> Business</label>
+      <label><input type="radio" name="category" value="private" id="cat-private"> Private</label>
+      <label>Details of trip (destination / client / reason)
+        <input type="text" name="purpose" id="purpose-input" placeholder="e.g. Client meeting — Acme Ltd, Durban">
+      </label>
+      <details>
+        <summary>Enter real odometer reading (optional)</summary>
+        <label>Opening odometer<input type="number" step="0.1" name="odometer_open" id="odometer-open-input"></label>
+        <label>Closing odometer<input type="number" step="0.1" name="odometer_close" id="odometer-close-input"></label>
+      </details>
+      <button type="submit" class="btn btn-primary btn-large">Save trip</button>
+    </form>
+  </div>
+
+  <p id="trip-error" class="error" hidden></p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="module" src="/static/js/trip-capture.js"></script>
+{% endblock %}

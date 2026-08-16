@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — SARS Logbook{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ vehicle.registration }}</h1>
+  <p class="odometer-figure">{{ "%.1f"|format(current_odometer) }} km</p>
+  <p class="muted">Current computed odometer</p>
+
+  {% if open_trip %}
+    <a href="/trip/live?resume={{ open_trip.id }}" class="btn btn-primary btn-large">Trip in progress — open it</a>
+  {% else %}
+    <a href="/trip/live" class="btn btn-primary btn-large">Start Trip</a>
+  {% endif %}
+
+  {% if pending_count > 0 %}
+    <a href="/trips" class="nudge">{{ pending_count }} trip{{ "s" if pending_count != 1 }} need classifying</a>
+  {% endif %}
+
+  <button id="sync-now-btn" class="btn">Sync offline trips</button>
+  <p id="sync-status" class="muted"></p>
+</div>
+
+<div class="card">
+  <h2>Recent trips</h2>
+  {% if recent_trips %}
+    <table class="trip-table">
+      <thead><tr><th>Date</th><th>From → To</th><th>Km</th><th>Category</th></tr></thead>
+      <tbody>
+      {% for trip in recent_trips %}
+        <tr>
+          <td>{{ trip.started_at.strftime("%d/%m/%Y") }}</td>
+          <td>{{ trip.start_address or "—" }} → {{ trip.end_address or "in progress" if not trip.ended_at else "—" }}</td>
+          <td>{{ "%.1f"|format(trip.distance_km) if trip.distance_km is not none else "—" }}</td>
+          <td><a href="/trips/{{ trip.id }}">{{ (trip.category or "unclassified")|title }}</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">No trips yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="module">
+  import { syncQueuedTrips } from "/static/js/sync.js";
+  const btn = document.getElementById("sync-now-btn");
+  const status = document.getElementById("sync-status");
+  btn?.addEventListener("click", async () => {
+    status.textContent = "Syncing…";
+    const result = await syncQueuedTrips();
+    if (result.error) {
+      status.textContent = "Couldn't sync — check your connection.";
+    } else if (result.synced === 0 && result.remaining === 0) {
+      status.textContent = "Nothing to sync.";
+    } else {
+      status.textContent = `Synced ${result.synced} trip(s).` +
+        (result.remaining > 0 ? ` ${result.remaining} still need classifying before they can sync.` : "");
+    }
+  });
+</script>
+{% endblock %}
