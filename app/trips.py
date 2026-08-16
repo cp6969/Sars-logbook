@@ -218,3 +218,42 @@ def sync_offline_trip(
         ),
     )
     return rows[0]
+
+
+def import_timeline_segment(
+    vehicle_id, external_id, started_at, ended_at, start_lat, start_lon, end_lat, end_lon, gps_track, distance_km=None
+):
+    """Imports one driving segment parsed from a Google Timeline export
+    (app.timeline_import) as a new trip in 'pending_review' -- same state
+    a GPS End Trip leaves a trip in, since an imported segment has no
+    category/purpose yet and still needs a human to classify it.
+
+    Idempotent by `external_id` (used as client_trip_uuid, same unique
+    constraint/mechanism already proven for the PWA's own offline-sync
+    upsert) so re-importing an overlapping monthly export never creates a
+    duplicate trip. Returns (trip, created) -- created=False if this exact
+    segment was already imported before.
+    """
+    existing = fetchone("SELECT * FROM trips WHERE client_trip_uuid = %s", (external_id,))
+    if existing:
+        return existing, False
+
+    start_address = reverse_geocode(start_lat, start_lon) if start_lat is not None else None
+    end_address = reverse_geocode(end_lat, end_lon) if end_lat is not None else None
+    if distance_km is None:
+        distance_km = track_distance_km(gps_track)
+
+    rows = execute(
+        """
+        INSERT INTO trips (vehicle_id, client_trip_uuid, started_at, ended_at,
+                            start_lat, start_lon, start_address, end_lat, end_lon, end_address,
+                            gps_track, distance_km, sync_status)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s, 'pending_review')
+        RETURNING *
+        """,
+        (
+            vehicle_id, external_id, started_at, ended_at, start_lat, start_lon, start_address,
+            end_lat, end_lon, end_address, _jsonb(gps_track), distance_km,
+        ),
+    )
+    return rows[0], True

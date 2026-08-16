@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Import Google Timeline — SARS Logbook{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <h1>Import from Google Timeline</h1>
+  <p class="muted">A proof-of-concept import path — pull your phone's own Google Maps Timeline data in every month or so and see how well it picks up your real drives, before deciding whether to build a full automatic-tracking app.</p>
+
+  {% if error %}
+    <p class="error">Couldn't read that file — make sure it's the Timeline export itself (a .json file, or the .zip if you went via Google Takeout).</p>
+  {% endif %}
+
+  {% if result %}
+    <div class="notice">
+      <strong>{{ result.imported }}</strong> new trip{{ "s" if result.imported != 1 }} imported and waiting to be classified.<br>
+      {% if result.duplicates %}{{ result.duplicates }} already imported before (skipped, no duplicates created).<br>{% endif %}
+      {{ result.skipped_non_driving }} non-driving segment{{ "s" if result.skipped_non_driving != 1 }} skipped (walking, still, etc).<br>
+      {% if result.skipped_unparseable %}
+        {{ result.skipped_unparseable }} segment{{ "s" if result.skipped_unparseable != 1 }} couldn't be read — Google's export format varies and this parser's field guesses are unverified against a real file, so this is expected on a first try.
+      {% endif %}
+    </div>
+    {% if result.imported > 0 %}<a href="/trips" class="btn btn-primary">Review imported trips</a>{% endif %}
+  {% endif %}
+
+  <h2>How to get the file</h2>
+  <p><strong>Android:</strong> Settings → Location → Location services → Timeline → Export Timeline data. Saves a file called <code>Timeline.json</code>, usually to your Downloads folder.</p>
+  <p><strong>iPhone:</strong> Open Google Maps → tap your profile picture → Settings → Location & privacy → Export Timeline data → Save to Files.</p>
+  <p class="muted">Get that file onto whatever device you're using to open this page (email it to yourself, AirDrop, save to a cloud drive — whatever's easiest), then upload it below.</p>
+
+  <form method="post" action="/import/google-timeline" enctype="multipart/form-data">
+    <label>Timeline export file
+      <input type="file" name="file" accept=".json,.zip" required>
+    </label>
+    <button type="submit" class="btn btn-primary btn-large">Import</button>
+  </form>
+</div>
+{% endblock %}

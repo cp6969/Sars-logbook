@@ -23,6 +23,33 @@ Maps Platform Geocoding API** server-side just to turn a trip's start/end
 coordinates into a readable address — a narrower, but real, use of
 "Google Maps API access."
 
+There's also a second, proof-of-concept way in: **Import from Google
+Timeline** (`/import/google-timeline`) reads the on-device `Timeline.json`
+export the Google Maps app itself can produce (Android: Settings →
+Location → Location services → Timeline → Export Timeline data; iPhone:
+Google Maps → profile → Settings → Location & privacy → Export Timeline
+data). Since Google's own Maps app has real OS-granted background-location
+permission — something a PWA can never get — it already tracks your
+movement all day with zero manual button presses, which is exactly the
+low-friction behavior a genuinely automatic version of this app would
+need. This import path is how that gets tested: upload the file (monthly,
+or whenever), and any driving segment it finds becomes a trip waiting to
+be classified, same as one captured via Start/End Trip. Re-uploading an
+overlapping export never creates duplicates (each segment gets a stable
+id derived from its own start/end time). **Caveat, called out again in
+`app/timeline_import.py`'s own docstring**: Google's current export
+format ("semanticSegments") is real and confirmed via research, but the
+exact field names inside a *driving* segment specifically weren't
+verifiable against a real sample file while building this — the import
+summary reports exactly what it could and couldn't parse, so the first
+real upload is the actual test of whether that guess holds.
+
+If this proves the concept out, the natural next step (a genuinely
+low-friction, always-on version) needs a **real native app** with OS
+background-location permission and motion/activity detection to
+auto-detect drives with no manual step at all — a separate fork from this
+PWA/Takeout-testing codebase, not a change to this one.
+
 ## How trip capture works
 
 - Tap **Start Trip** — GPS tracking runs only while a trip is open (no

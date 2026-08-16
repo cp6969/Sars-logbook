@@ -12,6 +12,8 @@
     <a href="/trip/live" class="btn btn-primary btn-large">Start Trip</a>
   {% endif %}
 
+  <a href="/import/google-timeline" class="btn btn-large">Import from Google Timeline</a>
+
   {% if pending_count > 0 %}
     <a href="/trips" class="nudge">{{ pending_count }} trip{{ "s" if pending_count != 1 }} need classifying</a>
   {% endif %}
